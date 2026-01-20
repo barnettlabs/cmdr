@@ -268,8 +268,8 @@ const startEditWorkspace = (workspace: Workspace) => {
 };
 
 // Helper functions for editing workspace layout
-const getPaneForPosition = (row: number, col: number) => {
-  if (!editingWorkspace.value) return null;
+const getPaneForPosition = (row: number, col: number): Pane | undefined => {
+  if (!editingWorkspace.value) return undefined;
   return editingWorkspace.value.panes.find(
     (p) => p.position[0] === row && p.position[1] === col
   );
@@ -876,7 +876,7 @@ const runCommand = async (command: Command) => {
           <div class="form-group">
             <label>Variables</label>
             <div class="env-var-list">
-              <div v-for="(value, key) in editingEnvironment.env.variables" :key="key" class="env-var-row">
+              <div v-for="(_value, key) in editingEnvironment.env.variables" :key="key" class="env-var-row">
                 <input :value="key" type="text" placeholder="KEY" @input="(e: Event) => {
                   const newKey = (e.target as HTMLInputElement).value;
                   const oldValue = editingEnvironment!.env.variables[key as string];

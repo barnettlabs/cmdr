@@ -10,17 +10,6 @@ onMounted(() => {
   projectsStore.loadProjects();
 });
 
-// Get projects that have workspaces, sorted by last opened
-const projectsWithWorkspaces = computed(() => {
-  return projectsStore.projects
-    .filter(p => p.workspaces && p.workspaces.length > 0)
-    .sort((a, b) => {
-      const aTime = a.lastOpened ? new Date(a.lastOpened).getTime() : 0;
-      const bTime = b.lastOpened ? new Date(b.lastOpened).getTime() : 0;
-      return bTime - aTime;
-    });
-});
-
 // Get all workspaces flattened with project info for "recent" display
 const recentWorkspaces = computed(() => {
   const workspaces: { projectId: string; projectName: string; projectPath: string; workspace: any }[] = [];
