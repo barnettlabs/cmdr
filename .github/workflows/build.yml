@@ -51,6 +51,18 @@ jobs:
       - name: Install frontend dependencies
         run: pnpm install
 
+      - name: Check network connectivity (for notarization)
+        if: github.event_name == 'push'
+        run: |
+          echo "=== DNS Configuration ==="
+          scutil --dns | head -50
+          echo ""
+          echo "=== DNS Resolution ==="
+          dig appstoreconnect.apple.com +short
+          echo ""
+          echo "=== HTTPS Connectivity ==="
+          curl -Iv --connect-timeout 10 https://appstoreconnect.apple.com/notary/v2/ 2>&1 | head -20
+
       - name: Build Tauri app (signed)
         if: github.event_name == 'push'
         env:
