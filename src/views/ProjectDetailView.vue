@@ -436,6 +436,40 @@ const getWorkspacePaneAt = (workspace: Workspace, row: number, col: number): Pan
   return workspace.panes.find(p => p.position[0] === row && p.position[1] === col);
 };
 
+// Convert absolute path to relative if it's inside the project root
+const toRelativePath = (absolutePath: string, projectRoot: string): string => {
+  if (!projectRoot) return absolutePath;
+
+  // Normalize paths (ensure no trailing slash for comparison)
+  const normalizedProject = projectRoot.endsWith('/') ? projectRoot.slice(0, -1) : projectRoot;
+  const normalizedPath = absolutePath.endsWith('/') ? absolutePath.slice(0, -1) : absolutePath;
+
+  // Check if the path is the project root itself
+  if (normalizedPath === normalizedProject) {
+    return '.';
+  }
+
+  // Check if the path is inside the project root
+  if (normalizedPath.startsWith(normalizedProject + '/')) {
+    return normalizedPath.slice(normalizedProject.length + 1);
+  }
+
+  // Path is outside project, keep absolute
+  return absolutePath;
+};
+
+// Convert relative path to absolute for file dialog
+const toAbsolutePath = (path: string, projectRoot: string): string => {
+  if (!path || path === '.') {
+    return projectRoot;
+  }
+  if (path.startsWith('/')) {
+    return path; // Already absolute
+  }
+  // Relative path - join with project root
+  return `${projectRoot}/${path}`;
+};
+
 const browsePaneDirectory = async (row: number, col: number) => {
   if (!editingWorkspace.value || !project.value) return;
   const pane = editingWorkspace.value.panes.find(
@@ -444,13 +478,17 @@ const browsePaneDirectory = async (row: number, col: number) => {
   if (!pane) return;
 
   try {
+    const defaultPath = pane.directory
+      ? toAbsolutePath(pane.directory, project.value.path)
+      : project.value.path;
+
     const selected = await open({
       directory: true,
       multiple: false,
-      defaultPath: pane.directory || project.value.path || undefined,
+      defaultPath: defaultPath || undefined,
     });
     if (selected) {
-      pane.directory = selected as string;
+      pane.directory = toRelativePath(selected as string, project.value.path);
     }
   } catch (e) {
     console.error("Failed to open folder picker:", e);
