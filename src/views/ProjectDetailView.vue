@@ -289,16 +289,6 @@ const updatePaneDirectory = (row: number, col: number, value: string) => {
   }
 };
 
-const updatePaneCommand = (row: number, col: number, value: string) => {
-  if (!editingWorkspace.value) return;
-  const pane = editingWorkspace.value.panes.find(
-    (p) => p.position[0] === row && p.position[1] === col
-  );
-  if (pane) {
-    pane.command = value || undefined;
-  }
-};
-
 // Helper to determine command type for a pane (none, preset, or custom)
 const getPaneCommandType = (row: number, col: number): 'none' | 'preset' | 'custom' => {
   // Check for override first (user explicitly selected a type)
